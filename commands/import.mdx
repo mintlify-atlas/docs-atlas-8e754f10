@@ -1,0 +1,134 @@
+---
+title: "zoxide import"
+description: "Import directory history from autojump, z, fasd, z.lua, zsh-z, or ZLocation into the zoxide database."
+---
+
+## Synopsis
+
+```bash
+zoxide import --from=<source> <path>
+```
+
+## Description
+
+`zoxide import` reads the database file of another jump tool and populates the zoxide database with matching entries. This lets you carry your directory history across when switching to zoxide.
+
+By default, the command fails if the zoxide database already contains entries. Use `--merge` to import alongside existing data instead of replacing it.
+
+<Warning>
+  When importing from autojump, zoxide discards the original scores because autojump's ranking algorithm is incompatible with zoxide's frecency model. Scores are normalized using a sigmoid function. Only the directory paths are carried over faithfully.
+</Warning>
+
+## Arguments
+
+<ParamField path="path" type="string" required>
+  Path to the source database file to import.
+</ParamField>
+
+## Options
+
+<ParamField path="--from" type="string" required>
+  The tool whose database format you are importing. Accepted values:
+
+  - `autojump` — autojump's tab-separated format (`rank\tpath`)
+  - `z` — z's pipe-separated format (`path|rank|timestamp`); also accepts `fasd` as an alias
+
+  Tools that use the `z` format include **z**, **fasd**, **z.lua**, and **zsh-z**.
+</ParamField>
+
+<ParamField path="--merge" type="boolean">
+  Allow importing into a non-empty database. Imported entries are merged with existing ones. Without this flag, the command exits with an error if the database already has entries.
+</ParamField>
+
+## Default database locations
+
+Use the paths below to locate the source file for each tool.
+
+### autojump
+
+| Platform | Default path |
+|----------|-------------|
+| Linux    | `~/.local/share/autojump/autojump.txt` |
+| macOS    | `~/Library/autojump/autojump.txt` |
+
+### z
+
+| Platform | Default path |
+|----------|-------------|
+| Linux / macOS | `~/.z` |
+
+### fasd
+
+| Platform | Default path |
+|----------|-------------|
+| Linux / macOS | `~/.fasd` |
+
+### z.lua
+
+| Platform | Default path |
+|----------|-------------|
+| Linux / macOS | `~/.zlua` |
+
+### zsh-z
+
+| Platform | Default path |
+|----------|-------------|
+| Linux / macOS | `~/.z` |
+
+## Examples
+
+Import from autojump on Linux:
+
+```bash
+zoxide import --from=autojump ~/.local/share/autojump/autojump.txt
+```
+
+Import from autojump on macOS:
+
+```bash
+zoxide import --from=autojump ~/Library/autojump/autojump.txt
+```
+
+Import from z:
+
+```bash
+zoxide import --from=z ~/.z
+```
+
+Import from fasd (uses the same format as z):
+
+```bash
+zoxide import --from=fasd ~/.fasd
+```
+
+Import from z.lua:
+
+```bash
+zoxide import --from=z ~/.zlua
+```
+
+Import from zsh-z:
+
+```bash
+zoxide import --from=z ~/.z
+```
+
+Merge into an existing zoxide database:
+
+```bash
+zoxide import --from=z --merge ~/.z
+```
+
+## Importing from ZLocation (PowerShell)
+
+ZLocation stores its database in a binary format that zoxide cannot read directly. Export it to a text file first, then import using the `z` format:
+
+```powershell
+$db = New-TemporaryFile
+(Get-ZLocation).GetEnumerator() | ForEach-Object { Write-Output ($_.Name+'|'+$_.Value+'|0') } | Out-File $db
+zoxide import --from=z $db
+```
+
+<Tip>
+  See the [migration guide](/guides/migrating) for step-by-step instructions on switching from each supported tool.
+</Tip>

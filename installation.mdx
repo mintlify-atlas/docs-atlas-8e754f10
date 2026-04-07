@@ -1,0 +1,188 @@
+---
+title: "Installation"
+description: "Install zoxide on Linux, macOS, Windows, BSD, or Android using the install script, a package manager, or cargo."
+---
+
+Installing zoxide takes four steps: install the binary, set up your shell, optionally install fzf for interactive selection, and optionally import your existing jump history.
+
+<Steps>
+  <Step title="Install the binary">
+    Choose your platform below and follow the instructions.
+  </Step>
+  <Step title="Set up your shell">
+    Add the zoxide init command to your shell config file. See [shell setup](/shell-setup).
+  </Step>
+  <Step title="Install fzf (optional)">
+    Install [fzf](https://github.com/junegunn/fzf) to enable the `zi` interactive selection command and tab completions.
+
+    <Note>The minimum supported fzf version is v0.51.0.</Note>
+  </Step>
+  <Step title="Import your data (optional)">
+    If you use autojump, z, fasd, z.lua, zsh-z, or ZLocation, you can import your history into zoxide.
+
+    **From autojump:**
+
+    ```sh
+    zoxide import --from=autojump "/path/to/autojump/db"
+    ```
+
+    The autojump database path varies by OS:
+
+    | OS | Default path |
+    | --- | --- |
+    | Linux | `$XDG_DATA_HOME/autojump/autojump.txt` or `$HOME/.local/share/autojump/autojump.txt` |
+    | macOS | `$HOME/Library/autojump/autojump.txt` |
+    | Windows | `%APPDATA%\autojump\autojump.txt` |
+
+    **From z, fasd, z.lua, or zsh-z:**
+
+    ```sh
+    zoxide import --from=z "path/to/z/db"
+    ```
+
+    | Plugin | Default path |
+    | --- | --- |
+    | fasd | `$_FASD_DATA` or `$HOME/.fasd` |
+    | z (bash/zsh) | `$_Z_DATA` or `$HOME/.z` |
+    | z (fish) | `$Z_DATA` or `$XDG_DATA_HOME/z/data` or `$HOME/.local/share/z/data` |
+    | z.lua (bash/zsh) | `$_ZL_DATA` or `$HOME/.zlua` |
+    | z.lua (fish) | `$XDG_DATA_HOME/zlua/zlua.txt` or `$HOME/.local/share/zlua/zlua.txt` or `$_ZL_DATA` |
+    | zsh-z | `$ZSHZ_DATA` or `$_Z_DATA` or `$HOME/.z` |
+
+    **From ZLocation (PowerShell):**
+
+    ```powershell
+    $db = New-TemporaryFile
+    (Get-ZLocation).GetEnumerator() | ForEach-Object { Write-Output ($_.Name+'|'+$_.Value+'|0') } | Out-File $db
+    zoxide import --from=z $db
+    ```
+  </Step>
+</Steps>
+
+## Platform instructions
+
+<Tabs>
+  <Tab title="Linux / WSL">
+    The recommended way to install zoxide is via the install script:
+
+    ```sh
+    curl -sSfL https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/install.sh | sh
+    ```
+
+    Or, use a package manager:
+
+    | Distribution | Repository | Command |
+    | --- | --- | --- |
+    | **Any** | **crates.io** | `cargo install zoxide --locked` |
+    | Any | asdf | `asdf plugin add zoxide https://github.com/nyrst/asdf-zoxide.git` then `asdf install zoxide latest` |
+    | Any | conda-forge | `conda install -c conda-forge zoxide` |
+    | Any | guix | `guix install zoxide` |
+    | Any | Linuxbrew | `brew install zoxide` |
+    | Any | nixpkgs | `nix-env -iA nixpkgs.zoxide` |
+    | Alpine Linux 3.13+ | Alpine Linux Packages | `apk add zoxide` |
+    | Arch Linux | Arch Linux Extra | `pacman -S zoxide` |
+    | Devuan 4.0+ | Devuan Packages | `apt install zoxide` |
+    | Exherbo Linux | Exherbo packages | `cave resolve -x repository/rust` then `cave resolve -x zoxide` |
+    | Fedora 32+ | Fedora Packages | `dnf install zoxide` |
+    | Gentoo | Gentoo Packages | `emerge app-shells/zoxide` |
+    | Manjaro | | `pacman -S zoxide` |
+    | openSUSE Tumbleweed | openSUSE Factory | `zypper install zoxide` |
+    | Rhino Linux | Pacstall Packages | `pacstall -I zoxide-deb` |
+    | Slackware 15.0+ | SlackBuilds | See SlackBuilds instructions |
+    | Solus | Solus Packages | `eopkg install zoxide` |
+    | Void Linux | Void Linux Packages | `xbps-install -S zoxide` |
+
+    <Note>
+      Debian, Ubuntu, Parrot OS, and Raspbian package repositories update very slowly. Use the install script instead for the latest version.
+    </Note>
+  </Tab>
+  <Tab title="macOS">
+    Run the install script:
+
+    ```sh
+    curl -sSfL https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/install.sh | sh
+    ```
+
+    Or, use a package manager:
+
+    | Repository | Command |
+    | --- | --- |
+    | **crates.io** | `cargo install zoxide --locked` |
+    | **Homebrew** | `brew install zoxide` |
+    | asdf | `asdf plugin add zoxide https://github.com/nyrst/asdf-zoxide.git` then `asdf install zoxide latest` |
+    | conda-forge | `conda install -c conda-forge zoxide` |
+    | MacPorts | `port install zoxide` |
+    | nixpkgs | `nix-env -iA nixpkgs.zoxide` |
+  </Tab>
+  <Tab title="Windows">
+    zoxide works with PowerShell, as well as shells running in Cygwin, Git Bash, and MSYS2.
+
+    The recommended way to install zoxide is via `winget`:
+
+    ```sh
+    winget install ajeetdsouza.zoxide
+    ```
+
+    Or, use an alternative package manager:
+
+    | Repository | Command |
+    | --- | --- |
+    | **crates.io** | `cargo install zoxide --locked` |
+    | Chocolatey | `choco install zoxide` |
+    | conda-forge | `conda install -c conda-forge zoxide` |
+    | Scoop | `scoop install zoxide` |
+
+    If you are using Cygwin, Git Bash, or MSYS2, you can also use the install script:
+
+    ```sh
+    curl -sSfL https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/install.sh | sh
+    ```
+  </Tab>
+  <Tab title="BSD">
+    Run the install script:
+
+    ```sh
+    curl -sS https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/install.sh | bash
+    ```
+
+    Or, use a package manager:
+
+    | Distribution | Repository | Command |
+    | --- | --- | --- |
+    | **Any** | **crates.io** | `cargo install zoxide --locked` |
+    | DragonFly BSD | DPorts | `pkg install zoxide` |
+    | FreeBSD | FreshPorts | `pkg install zoxide` |
+    | NetBSD | pkgsrc | `pkgin install zoxide` |
+  </Tab>
+  <Tab title="Android">
+    Run the install script:
+
+    ```sh
+    curl -sS https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/install.sh | bash
+    ```
+
+    Or, use Termux:
+
+    | Repository | Command |
+    | --- | --- |
+    | Termux | `pkg install zoxide` |
+  </Tab>
+</Tabs>
+
+## Universal: install with cargo
+
+If you have Rust installed, you can install zoxide on any platform with cargo:
+
+```sh
+cargo install zoxide --locked
+```
+
+This always installs the latest version from [crates.io](https://crates.io/crates/zoxide). The current release is **v0.9.9**.
+
+## Next steps
+
+Once zoxide is installed, add it to your shell to start using `z` and `zi`.
+
+<Card title="Shell setup" icon="terminal" href="/shell-setup">
+  Add zoxide to Bash, Zsh, Fish, PowerShell, Nushell, Elvish, Xonsh, Tcsh, or any POSIX shell.
+</Card>

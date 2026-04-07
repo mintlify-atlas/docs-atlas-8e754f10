@@ -1,0 +1,95 @@
+---
+title: "Init flags"
+description: "Flags you can pass to zoxide init to customize command names, hook behavior, and more."
+---
+
+Flags are passed to `zoxide init <shell>` when setting up zoxide in your shell configuration file. They let you control which commands zoxide defines and how frequently it tracks directory changes.
+
+```bash
+zoxide init <shell> [--cmd <prefix>] [--hook <hook>] [--no-cmd]
+```
+
+## Flags
+
+<ParamField path="--cmd" type="string" default="z">
+  Changes the prefix used for the `z` and `zi` commands.
+
+  - `--cmd j` defines `j` and `ji` instead of `z` and `zi`.
+  - `--cmd cd` replaces the shell's built-in `cd` command.
+
+  The underlying functions `__zoxide_z` and `__zoxide_zi` are always defined regardless of this flag.
+</ParamField>
+
+<ParamField path="--hook" type="string" default="pwd">
+  Controls how often zoxide increments a directory's score.
+
+  | Value | Behavior |
+  | --- | --- |
+  | `none` | Never — scores are only updated when you use `z` directly |
+  | `prompt` | At every shell prompt |
+  | `pwd` (default) | Whenever the current directory changes |
+
+  <Note>
+    POSIX shells (sh, dash, etc.) do not support `pwd` hooks. Use `--hook prompt` for those shells:
+
+    ```bash
+    eval "$(zoxide init posix --hook prompt)"
+    ```
+  </Note>
+</ParamField>
+
+<ParamField path="--no-cmd" type="boolean">
+  Prevents zoxide from defining the `z` and `zi` commands.
+
+  The internal functions `__zoxide_z` and `__zoxide_zi` are still defined, so you can map them to any name you prefer.
+</ParamField>
+
+## Example
+
+The following example initializes zoxide for Bash, renames the commands to `j` and `ji`, and only increments scores at the shell prompt:
+
+```bash
+eval "$(zoxide init bash --cmd j --hook prompt)"
+```
+
+To use custom command names with `--no-cmd`, define your own wrappers around the internal functions:
+
+```bash
+eval "$(zoxide init bash --no-cmd)"
+
+# Define custom wrappers
+j()  { __zoxide_z "$@"; }
+ji() { __zoxide_zi "$@"; }
+```
+
+## Shell setup locations
+
+Add the `zoxide init` call to the **end** of your shell's configuration file so that any environment variables affecting zoxide behavior are already set.
+
+<Tabs>
+  <Tab title="Bash">
+    ```bash ~/.bashrc
+    eval "$(zoxide init bash)"
+    ```
+  </Tab>
+  <Tab title="Zsh">
+    ```bash ~/.zshrc
+    eval "$(zoxide init zsh)"
+    ```
+  </Tab>
+  <Tab title="Fish">
+    ```bash ~/.config/fish/config.fish
+    zoxide init fish | source
+    ```
+  </Tab>
+  <Tab title="PowerShell">
+    ```powershell $PROFILE
+    Invoke-Expression (& { (zoxide init powershell | Out-String) })
+    ```
+  </Tab>
+  <Tab title="POSIX shell">
+    ```bash ~/.profile
+    eval "$(zoxide init posix --hook prompt)"
+    ```
+  </Tab>
+</Tabs>

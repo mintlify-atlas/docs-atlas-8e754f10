@@ -1,0 +1,173 @@
+---
+title: "Shell setup"
+description: "Add zoxide to your shell by running zoxide init and sourcing the output in your shell config file."
+---
+
+After [installing the zoxide binary](/installation), add the init command to your shell config file. This registers the `z` and `zi` commands and sets up directory tracking hooks.
+
+<Tabs>
+  <Tab title="Bash">
+    Add this to the **end** of your config file (usually `~/.bashrc`):
+
+    ```sh
+    eval "$(zoxide init bash)"
+    ```
+
+    <Note>Tab completions are supported on Bash 4.4 and later.</Note>
+  </Tab>
+  <Tab title="Zsh">
+    Add this to the **end** of your config file (usually `~/.zshrc`):
+
+    ```sh
+    eval "$(zoxide init zsh)"
+    ```
+
+    <Warning>
+      For completions to work, this line must be added **after** `compinit` is called. You may need to rebuild your completions cache:
+
+      ```sh
+      rm ~/.zcompdump*; compinit
+      ```
+    </Warning>
+  </Tab>
+  <Tab title="Fish">
+    Add this to the **end** of your config file (usually `~/.config/fish/config.fish`):
+
+    ```sh
+    zoxide init fish | source
+    ```
+  </Tab>
+  <Tab title="PowerShell">
+    Add this to the **end** of your config file (find the path by running `echo $profile` in PowerShell):
+
+    ```powershell
+    Invoke-Expression (& { (zoxide init powershell | Out-String) })
+    ```
+  </Tab>
+  <Tab title="Nushell">
+    First, add this to the **end** of your env file (find it by running `$nu.env-path` in Nushell):
+
+    ```sh
+    zoxide init nushell | save -f ~/.zoxide.nu
+    ```
+
+    Then, add this to the **end** of your config file (find it by running `$nu.config-path` in Nushell):
+
+    ```sh
+    source ~/.zoxide.nu
+    ```
+
+    <Note>zoxide requires Nushell v0.89.0 or later.</Note>
+  </Tab>
+  <Tab title="Elvish">
+    Add this to the **end** of your config file (usually `~/.elvish/rc.elv`):
+
+    ```sh
+    eval (zoxide init elvish | slurp)
+    ```
+
+    <Note>zoxide requires Elvish v0.18.0 or later.</Note>
+  </Tab>
+  <Tab title="Xonsh">
+    Add this to the **end** of your config file (usually `~/.xonshrc`):
+
+    ```python
+    execx($(zoxide init xonsh), 'exec', __xonsh__.ctx, filename='zoxide')
+    ```
+  </Tab>
+  <Tab title="Tcsh">
+    Add this to the **end** of your config file (usually `~/.tcshrc`):
+
+    ```sh
+    zoxide init tcsh > ~/.zoxide.tcsh
+    source ~/.zoxide.tcsh
+    ```
+  </Tab>
+  <Tab title="POSIX shell">
+    Add this to the **end** of your config file:
+
+    ```sh
+    eval "$(zoxide init posix --hook prompt)"
+    ```
+
+    <Note>
+      This applies to any POSIX-compliant shell such as `dash`, `ksh`, or `sh`. The `ksh` shell is also aliased to the POSIX implementation for better compatibility.
+    </Note>
+  </Tab>
+</Tabs>
+
+## Reload your shell
+
+After editing your config file, reload it to apply the changes. In most shells:
+
+```sh
+exec $SHELL
+```
+
+Or source your config file directly — for example, in Bash:
+
+```sh
+source ~/.bashrc
+```
+
+## Verify the setup
+
+After reloading, confirm that the `zoxide` binary is accessible and `z` is defined:
+
+```sh
+zoxide --version
+```
+
+You should see the zoxide version number. To confirm the `z` shell function is available, run:
+
+```sh
+type z
+```
+
+If either command is not found, check that the init line was added to the correct config file and that you have opened a new shell session (or sourced the config file).
+
+## Customizing the command name
+
+By default, zoxide defines the `z` and `zi` commands. You can change the prefix with `--cmd`:
+
+```sh
+eval "$(zoxide init bash --cmd j)"   # defines j and ji
+eval "$(zoxide init bash --cmd cd)"  # replaces the cd command
+```
+
+To suppress the `z` and `zi` definitions entirely and use the underlying `__zoxide_z` and `__zoxide_zi` functions directly:
+
+```sh
+eval "$(zoxide init bash --no-cmd)"
+```
+
+## Changing the scoring hook
+
+By default, zoxide increments a directory's score whenever you change into it (`--hook pwd`). You can change this:
+
+| Hook | When the score increments |
+| --- | --- |
+| `pwd` (default) | Whenever the directory is changed |
+| `prompt` | At every shell prompt |
+| `none` | Never (manual `zoxide add` only) |
+
+```sh
+eval "$(zoxide init bash --hook prompt)"
+```
+
+## Next steps
+
+Once your shell is set up, visit a few directories and then start jumping:
+
+```sh
+cd ~/projects/my-app
+cd ~/documents/notes
+
+z my-app    # jumps back to ~/projects/my-app
+z notes     # jumps back to ~/documents/notes
+zi          # opens interactive selection with fzf
+```
+
+<Tip>
+  Install [fzf](https://github.com/junegunn/fzf) (minimum v0.51.0) to enable `zi` interactive selection and tab completions.
+</Tip>

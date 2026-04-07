@@ -1,0 +1,68 @@
+---
+title: "zoxide add"
+description: "Add a directory to the database, or increment its rank if it already exists."
+---
+
+## Synopsis
+
+```bash
+zoxide add <path>...
+```
+
+## Description
+
+`zoxide add` records a directory visit in the database. If the directory does not already have an entry, zoxide creates one with a default score of `1`. If an entry already exists, zoxide increments its score. In both cases, the last-accessed timestamp is updated to the current time.
+
+After recording the visit, zoxide runs its [aging algorithm](/guides/algorithm) to keep the total accumulated score under the `_ZO_MAXAGE` limit. Low-ranked entries are pruned automatically over time.
+
+<Note>
+  This command is called automatically by the shell hook set up by `zoxide init`. You rarely need to call it directly.
+</Note>
+
+## Arguments
+
+<ParamField path="path" type="string[]" required>
+  One or more paths to add to the database. Each path must point to an existing directory. Relative paths are resolved against the current working directory. Symlinks are resolved or preserved according to the `_ZO_RESOLVE_SYMLINKS` environment variable.
+</ParamField>
+
+## Options
+
+<ParamField path="--score" type="number">
+  The amount by which to increment the directory's rank. If the directory is not in the database, this value becomes its initial score. Defaults to `1.0` when not specified.
+</ParamField>
+
+## Examples
+
+Add the current directory:
+
+```bash
+zoxide add .
+```
+
+Add an absolute path:
+
+```bash
+zoxide add /home/user/projects
+```
+
+Add multiple directories at once:
+
+```bash
+zoxide add /home/user/projects /home/user/documents
+```
+
+Add a directory with a custom initial score:
+
+```bash
+zoxide add /home/user/projects --score 10
+```
+
+## Behavior notes
+
+- Paths containing newline (`\n`) or carriage return (`\r`) characters are silently skipped.
+- Paths that match a glob pattern in `_ZO_EXCLUDE_DIRS` are silently skipped.
+- The path must be an existing directory. Passing a file path causes an error.
+
+<Tip>
+  To permanently exclude a directory from ever being added, set the `_ZO_EXCLUDE_DIRS` environment variable to a glob pattern that matches it. See [environment variables](/configuration/environment-variables) for details.
+</Tip>

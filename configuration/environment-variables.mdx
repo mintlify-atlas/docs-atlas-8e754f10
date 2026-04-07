@@ -1,0 +1,116 @@
+---
+title: "Environment variables"
+description: "Environment variables that configure zoxide's database location, behavior, and fzf integration."
+---
+
+Environment variables must be set **before** `zoxide init` is called in your shell configuration file. Place them above the `zoxide init` line.
+
+## Variables
+
+<ParamField path="_ZO_DATA_DIR" type="string">
+  Path to the directory where zoxide stores its database. Must be an absolute path.
+
+  Default location varies by operating system:
+
+  | OS | Default path | Example |
+  | --- | --- | --- |
+  | Linux / BSD | `$XDG_DATA_HOME` or `~/.local/share` | `/home/alice/.local/share/zoxide` |
+  | macOS | `~/Library/Application Support` | `/Users/Alice/Library/Application Support/zoxide` |
+  | Windows | `%LOCALAPPDATA%` | `C:\Users\Alice\AppData\Local\zoxide` |
+
+  <Tip>
+    Set this variable if you want to store the database on a different drive or share it across environments.
+  </Tip>
+</ParamField>
+
+<ParamField path="_ZO_ECHO" type="string">
+  When set to `1`, prints the matched directory to the terminal before navigating to it.
+
+  Useful for confirming which directory zoxide resolved, especially when multiple matches exist.
+</ParamField>
+
+<ParamField path="_ZO_EXCLUDE_DIRS" type="string">
+  A list of [glob patterns](https://man7.org/linux/man-pages/man7/glob.7.html) for directories to exclude from the database. Directories matching any pattern are never tracked.
+
+  Patterns are separated by an OS-specific delimiter:
+
+  | OS | Separator | Example |
+  | --- | --- | --- |
+  | Linux / macOS / BSD | `:` | `$HOME:$HOME/private/*` |
+  | Windows | `;` | `$HOME;$HOME/private/*` |
+
+  Default: `"$HOME"` (your home directory is excluded by default).
+
+  <Warning>
+    Changing this variable does not remove already-tracked entries from the database. It only prevents new entries from being added. Use `zoxide remove` to delete existing entries.
+  </Warning>
+</ParamField>
+
+<ParamField path="_ZO_FZF_OPTS" type="string">
+  Custom options passed to [fzf](https://github.com/junegunn/fzf) during interactive selection (the `zi` command).
+
+  Accepts any flags supported by fzf. See `man fzf` for the full list of options.
+</ParamField>
+
+<ParamField path="_ZO_MAXAGE" type="number" default="10000">
+  Maximum total score across all database entries before zoxide's aging algorithm starts removing old entries.
+
+  Lowering this value keeps the database smaller and removes infrequently visited directories sooner. Raising it retains more history.
+</ParamField>
+
+<ParamField path="_ZO_RESOLVE_SYMLINKS" type="string">
+  When set to `1`, zoxide resolves symlinks to their real paths before storing them in the database.
+
+  Useful when your shell or tools create symlinks to directories (for example, `/tmp` on macOS resolves to `/private/tmp`).
+</ParamField>
+
+## Setting variables in your shell
+
+Set these variables before the `zoxide init` line in your shell configuration file.
+
+<Tabs>
+  <Tab title="Bash / Zsh">
+    ```bash
+    export _ZO_DATA_DIR="$HOME/.config/zoxide"
+    export _ZO_ECHO=1
+    export _ZO_EXCLUDE_DIRS="$HOME:$HOME/private/*"
+    export _ZO_FZF_OPTS="--height 40% --reverse"
+    export _ZO_MAXAGE=5000
+    export _ZO_RESOLVE_SYMLINKS=1
+
+    eval "$(zoxide init bash)"
+    ```
+  </Tab>
+  <Tab title="Fish">
+    ```fish
+    set -x _ZO_DATA_DIR "$HOME/.config/zoxide"
+    set -x _ZO_ECHO 1
+    set -x _ZO_EXCLUDE_DIRS "$HOME:$HOME/private/*"
+    set -x _ZO_FZF_OPTS "--height 40% --reverse"
+    set -x _ZO_MAXAGE 5000
+    set -x _ZO_RESOLVE_SYMLINKS 1
+
+    zoxide init fish | source
+    ```
+  </Tab>
+  <Tab title="PowerShell">
+    ```powershell
+    $env:_ZO_DATA_DIR = "$HOME\.config\zoxide"
+    $env:_ZO_ECHO = "1"
+    $env:_ZO_EXCLUDE_DIRS = "$HOME;$HOME\private\*"
+    $env:_ZO_FZF_OPTS = "--height 40% --reverse"
+    $env:_ZO_MAXAGE = "5000"
+    $env:_ZO_RESOLVE_SYMLINKS = "1"
+
+    Invoke-Expression (& { (zoxide init powershell | Out-String) })
+    ```
+  </Tab>
+  <Tab title="Nushell">
+    ```nu
+    $env._ZO_DATA_DIR = ($env.HOME | path join ".config" "zoxide")
+    $env._ZO_ECHO = "1"
+    $env._ZO_MAXAGE = "5000"
+    $env._ZO_RESOLVE_SYMLINKS = "1"
+    ```
+  </Tab>
+</Tabs>

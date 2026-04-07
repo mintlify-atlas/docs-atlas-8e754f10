@@ -1,0 +1,65 @@
+---
+title: "zoxide edit"
+description: "Open an interactive editor to view and edit the zoxide database."
+---
+
+## Synopsis
+
+```bash
+zoxide edit
+```
+
+## Description
+
+`zoxide edit` opens an interactive [fzf](https://github.com/junegunn/fzf) interface that displays every entry in the database, sorted by frecency score. You can browse, search, and modify entries without leaving the terminal.
+
+<Note>
+  `zoxide edit` requires fzf to be installed and available on your `PATH`.
+</Note>
+
+## Interactive interface
+
+The editor displays each entry as a score-and-path pair. The following key bindings are available inside the interface:
+
+| Key | Action |
+|-----|--------|
+| `Ctrl+R` | Reload the list |
+| `Ctrl+D` | Delete the selected entry |
+| `Ctrl+W` | Increment the selected entry's score by 1 |
+| `Ctrl+S` | Decrement the selected entry's score by 1 |
+| `Tab` | Move down |
+| `Shift+Tab` | Move up |
+| `Enter` | Close the editor |
+
+## Common use cases
+
+**Remove stale entries.** After deleting or renaming directories, use `zoxide edit` to find and delete entries that point to paths that no longer exist. Navigate to each stale entry and press `Ctrl+D` to delete it.
+
+**Adjust scores.** If a directory appears too often or not often enough in query results, use `Ctrl+W` or `Ctrl+S` to nudge its score up or down.
+
+**Audit the database.** Browse all recorded directories to understand what zoxide has learned about your navigation patterns.
+
+## Examples
+
+Open the interactive editor:
+
+```bash
+zoxide edit
+```
+
+<Tip>
+  To remove a single known path without opening the interactive editor, use [`zoxide remove`](/commands/remove) instead.
+</Tip>
+
+## Internal subcommands
+
+The `edit` command exposes hidden subcommands used by fzf to apply changes in real time. These are not intended for direct use:
+
+- `zoxide edit increment <path>` — adds 1 to the path's score
+- `zoxide edit decrement <path>` — subtracts 1 from the path's score
+- `zoxide edit delete <path>` — removes the path from the database
+- `zoxide edit reload` — dumps the current database for fzf to re-render
+
+<Warning>
+  These subcommands are internal and their behavior may change between releases. Use the interactive key bindings instead of calling them directly.
+</Warning>

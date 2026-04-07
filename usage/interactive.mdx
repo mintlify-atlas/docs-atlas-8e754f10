@@ -1,0 +1,81 @@
+---
+title: "Interactive selection"
+description: "Use zi to open an fzf window and pick a destination directory from your ranked history."
+---
+
+The `zi` command opens an interactive fuzzy-finder window (powered by [fzf](https://github.com/junegunn/fzf)) that lets you browse and select from your ranked directory history before changing directory.
+
+## Requirements
+
+<Note>
+  fzf must be installed and available on your `PATH`. The minimum supported
+  version is **v0.51.0**. Install it from the [fzf releases
+  page](https://github.com/junegunn/fzf#installation).
+</Note>
+
+## Using zi
+
+Run `zi` with an optional set of keywords to pre-filter the list:
+
+```sh
+zi foo             # open fzf pre-filtered to entries matching foo
+zi                 # open fzf showing all entries, ranked
+```
+
+<Steps>
+  <Step title="Type your query">
+    After invoking `zi`, the fzf window opens immediately. Type any substring
+    of a path to narrow the list. The results stay sorted by zoxide's ranking
+    (most-visited first), so the best match is usually near the top.
+  </Step>
+  <Step title="Select a directory">
+    Use the arrow keys (or `Tab` / `Shift+Tab`) to move through results. Press
+    `Enter` to navigate to the highlighted directory.
+  </Step>
+  <Step title="Cancel if needed">
+    Press `Escape` or `Ctrl+C` to close fzf without changing directory.
+  </Step>
+</Steps>
+
+## Default fzf options
+
+When `_ZO_FZF_OPTS` is not set, zoxide launches fzf with the following options:
+
+```sh
+--exact
+--no-sort
+--bind=ctrl-z:ignore,btab:up,tab:down
+--cycle
+--keep-right
+--border=sharp
+--height=45%
+--info=inline
+--layout=reverse
+--tabstop=1
+--exit-0
+```
+
+Key bindings in the default configuration:
+
+| Key | Action |
+|-----|--------|
+| `Tab` | Move selection down |
+| `Shift+Tab` (`btab`) | Move selection up |
+| `Enter` | Accept selection and cd |
+| `Escape` / `Ctrl+C` | Cancel without changing directory |
+| `Ctrl+Z` | Ignored (prevents accidental suspend) |
+
+## Customising fzf options
+
+Set the `_ZO_FZF_OPTS` environment variable before `zoxide init` is called to replace the default fzf flags entirely:
+
+```sh
+export _ZO_FZF_OPTS="--height=80% --layout=reverse --border"
+eval "$(zoxide init bash)"
+```
+
+<Tip>
+  See `man fzf` for the full list of available options. When `_ZO_FZF_OPTS` is
+  set, zoxide passes its value directly to fzf as `FZF_DEFAULT_OPTS`, so all
+  standard fzf flags apply.
+</Tip>

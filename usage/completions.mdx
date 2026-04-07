@@ -1,0 +1,82 @@
+---
+title: "Tab completions"
+description: "Use Space+Tab after z to open interactive completions in bash, fish, and zsh."
+---
+
+zoxide supports tab completions in **bash 4.4+**, **fish**, and **zsh**. Completions let you type a partial query and press `Space+Tab` to open an interactive fzf selection — identical to `zi` but triggered inline from the command line.
+
+```sh
+z foo<SPACE><TAB>  # show interactive completions (bash 4.4+/fish/zsh only)
+```
+
+<Note>
+  Tab completions require [fzf](https://github.com/junegunn/fzf) (minimum
+  v0.51.0) to be installed for the interactive selection mode. Single-argument
+  completions (without a trailing space) fall back to standard directory
+  completions and do not require fzf.
+</Note>
+
+## Shell-specific behaviour
+
+<Tabs>
+  <Tab title="Bash">
+    Completions are enabled automatically when `zoxide init bash` is sourced,
+    provided Bash 4.4 or later is in use and line editing (vi or emacs mode) is
+    active on a non-`dumb` terminal.
+
+    When you type `z foo<SPACE><TAB>`, zoxide queries the database for entries
+    matching `foo`, opens fzf, and — on selection — automatically accepts the
+    line and changes directory without requiring an extra `Enter` keypress.
+
+    ```sh
+    # In ~/.bashrc
+    eval "$(zoxide init bash)"
+    ```
+
+    <Note>
+      Auto-cd on Space+Tab selection was introduced in zoxide **0.9.8**.
+    </Note>
+  </Tab>
+  <Tab title="Zsh">
+    Completions are registered via `compdef` and require the zsh completion
+    system (`compinit`) to be initialised **before** `zoxide init zsh` is
+    sourced.
+
+    ```sh
+    # In ~/.zshrc — compinit must come first
+    autoload -Uz compinit && compinit
+    eval "$(zoxide init zsh)"
+    ```
+
+    If completions do not appear, rebuild the completion cache:
+
+    ```sh
+    rm ~/.zcompdump*; compinit
+    ```
+
+    Space+Tab behaviour is the same as bash: selecting an entry in fzf
+    immediately accepts the line and changes directory.
+  </Tab>
+  <Tab title="Fish">
+    Completions are registered automatically when `zoxide init fish | source`
+    is sourced. No additional configuration is required.
+
+    ```fish
+    # In ~/.config/fish/config.fish
+    zoxide init fish | source
+    ```
+
+    When the last token on the command line is empty (i.e., you pressed
+    `Space` before `Tab`), fish passes the existing keywords to
+    `zoxide query --interactive`, opens fzf, and changes directory on
+    selection.
+  </Tab>
+</Tabs>
+
+## Warp terminal
+
+<Warning>
+  The [Warp](https://www.warp.dev) terminal provides its own completion
+  system, so `Space+Tab` completions are not supported there. Use `zi`
+  directly for interactive selection when working inside Warp.
+</Warning>

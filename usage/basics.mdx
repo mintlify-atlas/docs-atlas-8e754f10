@@ -1,0 +1,83 @@
+---
+title: "Basic usage"
+description: "Learn how the z command works, how zoxide learns from your navigation history, and the full range of ways to jump to directories."
+---
+
+The primary command zoxide exposes is `z`. It behaves like `cd` for ordinary paths, and like a smart jump command when you supply keywords — matching against a ranked history of directories you have visited.
+
+## How zoxide learns
+
+Every time you change directory, zoxide records the path and increments a score for that entry. Over time, directories you visit more often accumulate a higher score. When you run `z`, zoxide searches the database and returns the highest-ranked directory whose path contains all of your keywords.
+
+This happens automatically via a shell hook installed by `zoxide init`. The default hook fires on every directory change (`pwd` hook). You can switch to a prompt-based hook or disable it entirely when you run `zoxide init`:
+
+```sh
+# Score updated on every cd (default)
+eval "$(zoxide init bash)"
+
+# Score updated at every shell prompt instead
+eval "$(zoxide init bash --hook prompt)"
+```
+
+No manual bookmarking is required — zoxide builds its database purely from your navigation history.
+
+## The z command
+
+### Jump to a directory by keyword
+
+Provide one or more keywords. zoxide returns the highest-ranked directory whose path contains all of them (as substrings of any path component).
+
+```sh
+z foo              # cd into highest ranked directory matching foo
+z foo bar          # cd into highest ranked directory matching foo and bar
+```
+
+Multiple keywords narrow the match. For example, `z pro docs` would match `/home/alice/projects/my-app/docs` but not `/home/alice/projects`.
+
+### Subdirectory search
+
+Use `/` as a keyword after another keyword to require that the path continues beyond that keyword — that is, there must be a path separator after it. This matches paths where the keyword appears in a parent directory component rather than the final component.
+
+```sh
+z foo /            # matches /foo/bar but not /foo (path must continue after foo)
+z foo / bar        # matches /foo/baz/bar (foo must precede a separator, bar is last component)
+```
+
+### Paths that work like regular cd
+
+`z` accepts anything `cd` accepts. When the argument is an existing path, a home-directory expansion, or a relative path, it behaves exactly like `cd`:
+
+```sh
+z ~/foo            # z also works like a regular cd command
+z foo/             # cd into relative path
+z ..               # cd one level up
+z -                # cd into previous directory
+```
+
+## Keyword matching
+
+zoxide matches keywords against the full absolute path, not just the final directory name. Each keyword must appear as a contiguous substring in the path. Matching is case-insensitive on case-insensitive file systems.
+
+<Note>
+  If no match is found, zoxide exits with an error. Revisit a directory
+  manually once to add it to the database, then it will be available for
+  keyword jumps.
+</Note>
+
+## Changing the command prefix
+
+By default, zoxide defines `z` and `zi`. You can change the prefix with the `--cmd` flag when initialising:
+
+```sh
+# Use j and ji instead of z and zi
+eval "$(zoxide init bash --cmd j)"
+
+# Replace the cd command entirely
+eval "$(zoxide init bash --cmd cd)"
+```
+
+<Tip>
+  The internal functions `__zoxide_z` and `__zoxide_zi` are always available
+  regardless of `--cmd`. Use `--no-cmd` to suppress the public aliases and
+  define your own wrappers around these functions.
+</Tip>

@@ -1,0 +1,105 @@
+---
+title: "zoxide query"
+description: "Search the database for a directory matching one or more keywords."
+---
+
+## Synopsis
+
+```bash
+zoxide query [keywords]... [options]
+```
+
+## Description
+
+`zoxide query` searches the database for directories whose paths match all of the provided keywords. Matching is case-insensitive and each keyword must appear as a substring of the path. Results are ranked by [frecency](/guides/algorithm) — a combination of visit frequency and recency.
+
+By default, the command prints the single highest-ranked match. Use `--list` to print all matches, or `--interactive` to pick one with an interactive fzf interface.
+
+<Note>
+  The `z` shell command is a wrapper around `zoxide query`. The `zi` command is shorthand for `zoxide query --interactive`.
+</Note>
+
+## Arguments
+
+<ParamField path="keywords" type="string[]">
+  One or more substrings to match against directory paths. All keywords must be present in the path for it to qualify as a match. If no keywords are given, all database entries are considered matches.
+</ParamField>
+
+## Options
+
+<ParamField path="--all" type="boolean">
+  Include directories that no longer exist on the filesystem. By default, zoxide only returns paths that are currently accessible.
+</ParamField>
+
+<ParamField path="--interactive" type="boolean">
+  Open an interactive fzf selection interface instead of printing a result directly. Conflicts with `--list`. Requires [fzf](https://github.com/junegunn/fzf) to be installed.
+</ParamField>
+
+<ParamField path="--list" type="boolean">
+  Print all matching directories in ranked order, one per line, instead of only the top match. Conflicts with `--interactive`.
+</ParamField>
+
+<ParamField path="--score" type="boolean">
+  Include the calculated frecency score alongside each printed path.
+</ParamField>
+
+<ParamField path="--exclude" type="string">
+  Exclude a specific path from results. Typically set by the shell wrapper to the current directory, so that `z foo` always moves somewhere new rather than confirming you are already there.
+</ParamField>
+
+<ParamField path="--base-dir" type="string">
+  Restrict results to paths that are located within this directory. Useful when you want to jump only within a specific project tree.
+</ParamField>
+
+## Examples
+
+Jump to the highest-ranked directory matching `projects`:
+
+```bash
+zoxide query projects
+```
+
+Match multiple keywords (all must appear in the path):
+
+```bash
+zoxide query my app src
+```
+
+List all matching directories with their scores:
+
+```bash
+zoxide query --list --score projects
+```
+
+Select interactively with fzf:
+
+```bash
+zoxide query --interactive
+```
+
+Include stale entries that no longer exist on disk:
+
+```bash
+zoxide query --all --list
+```
+
+Restrict results to subdirectories of `~/work`:
+
+```bash
+zoxide query --base-dir ~/work app
+```
+
+## Interactive mode key bindings
+
+When using `--interactive`, fzf is launched with the following default key bindings:
+
+| Key | Action |
+|-----|--------|
+| `Tab` | Move down |
+| `Shift+Tab` | Move up |
+| `Ctrl+Z` | Ignore (no-op) |
+| `Enter` | Confirm selection |
+
+<Tip>
+  Override fzf options by setting the `_ZO_FZF_OPTS` environment variable. See [environment variables](/configuration/environment-variables) for the full list of supported options.
+</Tip>

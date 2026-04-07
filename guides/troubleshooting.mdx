@@ -1,0 +1,223 @@
+---
+title: "Troubleshooting"
+description: "Solutions to common zoxide problems, diagnostic commands, and version-specific notes."
+---
+
+<AccordionGroup>
+  <Accordion title='"z: command not found" after installation'>
+    The shell init snippet has either not been added or has been added in the
+    wrong place.
+
+    **Fix:** Add the init line to the **end** of your shell's config file — after
+    all other configuration. The correct snippet depends on your shell:
+
+    ```bash
+    # Bash — add to ~/.bashrc
+    eval "$(zoxide init bash)"
+    ```
+
+    ```zsh
+    # Zsh — add to ~/.zshrc (must be after compinit)
+    eval "$(zoxide init zsh)"
+    ```
+
+    ```fish
+    # Fish — add to ~/.config/fish/config.fish
+    zoxide init fish | source
+    ```
+
+    ```powershell
+    # PowerShell — add to $PROFILE
+    Invoke-Expression (& { (zoxide init powershell | Out-String) })
+    ```
+
+    After editing the file, open a new shell session (or run `source ~/.bashrc`,
+    etc.) for the changes to take effect.
+  </Accordion>
+
+  <Accordion title="zoxide is not learning new directories">
+    zoxide records a directory visit through a **hook** that fires when the
+    current directory changes. If the hook is disabled or set to `prompt`, new
+    directories may not be tracked correctly.
+
+    **Check your init line.** The default hook is `pwd` (fires on every
+    directory change). If you passed `--hook none` or `--hook prompt`, switch
+    back to the default:
+
+    ```bash
+    eval "$(zoxide init bash)"          # uses --hook pwd by default
+    eval "$(zoxide init bash --hook pwd)"  # explicit
+    ```
+
+    You can also add a directory manually:
+
+    ```bash
+    zoxide add /path/to/dir
+    ```
+
+    **POSIX shells** (ksh, dash, etc.) only support `--hook prompt`. This means
+    zoxide increments a directory's score at each prompt display rather than
+    instantly on `cd`.
+
+    <Note>
+      Run the built-in doctor to check for common hook problems (available in
+      Bash and Zsh since v0.9.7, and POSIX shells since v0.9.8):
+
+      ```bash
+      __zoxide_doctor
+      ```
+    </Note>
+  </Accordion>
+
+  <Accordion title="Wrong directory returned for my query">
+    zoxide returns the highest-scoring match. If it returns the wrong
+    directory, you have a few options:
+
+    **1. Use more specific keywords.**
+    Multiple keywords narrow the match:
+
+    ```bash
+    z projects myapp   # matches a path containing both "projects" and "myapp"
+    ```
+
+    **2. Use interactive mode.**
+    `zi` opens an fzf picker showing all matches ranked by score:
+
+    ```bash
+    zi foo
+    ```
+
+    **3. Inspect scores.**
+    See all matches and their scores to understand why a particular directory
+    ranked higher:
+
+    ```bash
+    zoxide query --list --score foo
+    ```
+
+    **4. Remove a stale entry.**
+    If a directory no longer exists and keeps appearing, remove it:
+
+    ```bash
+    zoxide remove /path/to/old/dir
+    ```
+  </Accordion>
+
+  <Accordion title="Tab completions not working in Zsh">
+    Zoxide relies on Zsh's completion system. The `zoxide init zsh` line must be
+    added **after** `compinit` is called in `~/.zshrc`.
+
+    ```zsh
+    # Correct order:
+    autoload -Uz compinit && compinit
+    eval "$(zoxide init zsh)"   # must come after compinit
+    ```
+
+    If you recently changed this order, you may also need to rebuild your
+    completion cache:
+
+    ```zsh
+    rm -f ~/.zcompdump*
+    compinit
+    ```
+  </Accordion>
+
+  <Accordion title="Space+Tab completions not working in Warp">
+    [Warp](https://www.warp.dev) provides its own completion system that
+    intercepts `Space+Tab`. As a result, zoxide's `Space+Tab` interactive
+    completions are **not supported** in Warp.
+
+    Use `zi` for interactive selection instead:
+
+    ```bash
+    zi foo
+    ```
+  </Accordion>
+
+  <Accordion title="Nushell: zoxide not initializing correctly">
+    zoxide requires **Nushell v0.89.0 or later**. Older versions will fail to
+    source the generated script.
+
+    Check your Nushell version:
+
+    ```nu
+    version | get version
+    ```
+
+    The correct setup for Nushell requires two steps — one in your env file and
+    one in your config file:
+
+    ```nu
+    # In $nu.env-path:
+    zoxide init nushell | save -f ~/.zoxide.nu
+    ```
+
+    ```nu
+    # In $nu.config-path:
+    source ~/.zoxide.nu
+    ```
+  </Accordion>
+
+  <Accordion title="Elvish: zoxide not initializing correctly">
+    zoxide requires **Elvish v0.18.0 or later**.
+
+    Check your Elvish version:
+
+    ```elvish
+    echo $version
+    ```
+
+    Correct init snippet:
+
+    ```elvish
+    # Add to ~/.elvish/rc.elv
+    eval (zoxide init elvish | slurp)
+    ```
+  </Accordion>
+
+  <Accordion title="Database corruption or unexpected errors">
+    Database corruption can manifest as parse errors or unexpected crashes.
+    A fix for corruption caused by a full filesystem was shipped in **v0.9.8**.
+
+    **To recover**, remove the database file and let zoxide create a fresh one:
+
+    ```bash
+    rm ~/.local/share/zoxide/db.zo        # Linux/BSD
+    rm ~/Library/Application\ Support/zoxide/db.zo  # macOS
+    ```
+
+    <Warning>
+      This permanently deletes your jump history. Back up the file first if you
+      want to attempt recovery later.
+    </Warning>
+
+    On Windows, the database is at `%LOCALAPPDATA%\zoxide\db.zo`.
+
+    If you set a custom `_ZO_DATA_DIR`, the database is at
+    `$_ZO_DATA_DIR/db.zo`.
+  </Accordion>
+</AccordionGroup>
+
+## Diagnostic commands
+
+These commands help diagnose what zoxide sees without changing anything:
+
+```bash
+# List all entries matching "foo", sorted by score (highest first)
+zoxide query --list foo
+
+# List entries with their current scores
+zoxide query --list --score foo
+
+# Show the single best match (what `z foo` would jump to)
+zoxide query foo
+```
+
+In Bash, Zsh, and POSIX shells, the built-in doctor checks for common
+configuration problems — missing hooks, incorrect init order, and more:
+
+```bash
+__zoxide_doctor
+```
+
+The doctor was added in **v0.9.7** (Bash/Zsh) and **v0.9.8** (POSIX shells).

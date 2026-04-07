@@ -1,0 +1,84 @@
+{
+  "projectType": "cli-tool",
+  "projectName": "zoxide",
+  "projectDescription": "A smarter cd command that learns your most-used directories and lets you jump to them with just a few keystrokes.",
+  "theme": "palm",
+  "primaryColor": "#d4a03c",
+  "lightColor": "#7c542c",
+  "darkColor": null,
+  "navigation": {
+    "tabs": [
+      {
+        "tab": "Documentation",
+        "groups": [
+          {
+            "group": "Get Started",
+            "pages": [
+              "introduction",
+              "installation",
+              "shell-setup"
+            ]
+          },
+          {
+            "group": "Usage",
+            "pages": [
+              "usage/basics",
+              "usage/interactive",
+              "usage/completions"
+            ]
+          },
+          {
+            "group": "Configuration",
+            "pages": [
+              "configuration/init-flags",
+              "configuration/environment-variables"
+            ]
+          },
+          {
+            "group": "Commands",
+            "pages": [
+              "commands/add",
+              "commands/query",
+              "commands/remove",
+              "commands/import",
+              "commands/edit"
+            ]
+          },
+          {
+            "group": "Guides",
+            "pages": [
+              "guides/migrating",
+              "guides/integrations",
+              "guides/algorithm",
+              "guides/troubleshooting"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "keyFeatures": [
+    "Frecency-based directory ranking that learns from usage patterns",
+    "Works with all major shells: Bash, Zsh, Fish, PowerShell, Nushell, Elvish, Xonsh, Tcsh, and POSIX",
+    "Interactive fuzzy selection with fzf integration",
+    "Tab completions in supported shells",
+    "Import data from autojump, fasd, z, z.lua, and zsh-z",
+    "Configurable via environment variables and init flags",
+    "Cross-platform: Linux, macOS, Windows, BSD, and Android"
+  ],
+  "publicApiSurface": [
+    "z <keywords> — jump to highest-ranked matching directory",
+    "zi <keywords> — interactive jump with fzf selection",
+    "zoxide init <shell> — generate shell configuration",
+    "zoxide add <path> — add a directory to the database",
+    "zoxide query <keywords> — search the database",
+    "zoxide remove <path> — remove a directory from the database",
+    "zoxide import --from=<autojump|z> <path> — import from another tool",
+    "_ZO_DATA_DIR — set database storage directory",
+    "_ZO_ECHO — print matched directory before navigating",
+    "_ZO_EXCLUDE_DIRS — glob patterns of directories to exclude",
+    "_ZO_FZF_OPTS — custom fzf options",
+    "_ZO_MAXAGE — maximum total age for database entries",
+    "_ZO_RESOLVE_SYMLINKS — resolve symlinks before storing paths"
+  ]
+}

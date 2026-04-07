@@ -1,0 +1,70 @@
+---
+title: "Introduction"
+description: "zoxide is a smarter cd command that learns which directories you use most, so you can jump to them in just a few keystrokes."
+---
+
+zoxide is a smarter `cd` command, inspired by z and autojump. It tracks which directories you visit and ranks them by how frequently and how recently you use them — so the right directory is always one short query away.
+
+```sh
+z foo              # cd into highest ranked directory matching foo
+z foo bar          # cd into highest ranked directory matching foo and bar
+z foo /            # cd into a subdirectory starting with foo
+
+z ~/foo            # z also works like a regular cd command
+z foo/             # cd into relative path
+z ..               # cd one level up
+z -                # cd into previous directory
+
+zi foo             # cd with interactive selection (using fzf)
+
+z foo<SPACE><TAB>  # show interactive completions (bash 4.4+ / fish / zsh only)
+```
+
+## Key features
+
+<CardGroup cols={2}>
+  <Card title="Frecency ranking" icon="chart-line">
+    Combines frequency and recency to always surface the most relevant directory for your query — not just the most visited.
+  </Card>
+  <Card title="All major shells" icon="terminal">
+    Native support for Bash, Zsh, Fish, PowerShell, Nushell, Elvish, Xonsh, Tcsh, and any POSIX shell.
+  </Card>
+  <Card title="Interactive selection" icon="magnifying-glass">
+    Use `zi` to fuzzy-search through matching directories interactively with [fzf](https://github.com/junegunn/fzf).
+  </Card>
+  <Card title="Cross-platform" icon="globe">
+    Works on Linux, macOS, Windows (including WSL, Git Bash, and Cygwin), BSD, and Android.
+  </Card>
+  <Card title="Drop-in replacement" icon="arrow-right-arrow-left">
+    Use `--cmd cd` to replace your existing `cd` command entirely, with no change to muscle memory.
+  </Card>
+  <Card title="Import your history" icon="database">
+    Migrate your existing jump history from autojump, fasd, z, z.lua, zsh-z, or ZLocation.
+  </Card>
+</CardGroup>
+
+## How it compares
+
+| Feature | `cd` | z / autojump | zoxide |
+| --- | --- | --- | --- |
+| Jump by partial name | No | Yes | Yes |
+| Multi-keyword matching | No | No | Yes |
+| Interactive fuzzy selection | No | No | Yes (`zi`) |
+| All major shells | Yes | Partial | Yes |
+| Written in Rust (fast) | — | No | Yes |
+| Import from z / autojump | — | — | Yes |
+
+Unlike plain `cd`, zoxide remembers where you go and ranks directories by a frecency score — a combination of how **frequently** and how **recently** you visited them. The more you use a directory, the higher it ranks. Entries that haven't been visited in a long time gradually age out.
+
+Unlike z and autojump, zoxide supports multi-keyword queries (`z foo bar` matches a directory containing both "foo" and "bar"), ships with native interactive selection via `zi`, and works consistently across all major shells without relying on shell plugin managers.
+
+## Get started
+
+<CardGroup cols={2}>
+  <Card title="Installation" icon="download" href="/installation">
+    Install zoxide on Linux, macOS, Windows, BSD, or Android.
+  </Card>
+  <Card title="Shell setup" icon="code" href="/shell-setup">
+    Add zoxide to Bash, Zsh, Fish, PowerShell, Nushell, and more.
+  </Card>
+</CardGroup>

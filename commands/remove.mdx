@@ -1,0 +1,56 @@
+---
+title: "zoxide remove"
+description: "Remove one or more directories from the database."
+---
+
+## Synopsis
+
+```bash
+zoxide remove <path>...
+```
+
+## Description
+
+`zoxide remove` deletes entries from the database by path. You can pass either the exact path string stored in the database or a relative path that resolves to the same absolute location — zoxide tries both.
+
+If a path is not found in the database after both attempts, the command exits with an error.
+
+## Arguments
+
+<ParamField path="path" type="string[]" required>
+  One or more directory paths to remove. Each path is first matched exactly against the database. If no exact match is found, the path is resolved to an absolute path and matched again.
+</ParamField>
+
+## Examples
+
+Remove a specific directory:
+
+```bash
+zoxide remove /home/user/old-project
+```
+
+Remove using a relative path (resolved to absolute before matching):
+
+```bash
+zoxide remove ./old-project
+```
+
+Remove multiple directories at once:
+
+```bash
+zoxide remove /home/user/old-project /tmp/scratch
+```
+
+## Use cases
+
+**Cleaning up deleted directories.** When you delete or rename a directory, zoxide still holds its old entry. Use `zoxide remove` to purge stale entries, or run `zoxide edit` to review and clean the database interactively.
+
+**Stopping a directory from appearing in results.** If a directory keeps appearing as a top match but you no longer want it, remove it from the database and it will no longer be suggested.
+
+<Warning>
+  Removal is permanent. There is no undo. If you remove a directory you still use, zoxide will start tracking it again the next time you visit it.
+</Warning>
+
+<Tip>
+  To prevent a directory from ever being added again after you remove it, add its path to the `_ZO_EXCLUDE_DIRS` environment variable as a glob pattern. See [environment variables](/configuration/environment-variables) for details.
+</Tip>

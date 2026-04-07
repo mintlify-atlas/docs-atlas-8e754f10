@@ -1,0 +1,142 @@
+---
+title: "Migrating from other tools"
+description: "Import your jump history from autojump, fasd, z, z.lua, zsh-z, or ZLocation into zoxide."
+---
+
+If you're switching to zoxide from another directory-jumping tool, you can carry your history with you using `zoxide import`. This is entirely optional — zoxide works great starting from a blank slate and will learn your habits quickly on its own.
+
+<Note>
+  If your current zoxide database is not empty, you must pass `--merge` to allow
+  importing into an existing database. Without this flag, the import will fail
+  to protect you from accidentally overwriting data.
+</Note>
+
+<Tabs>
+  <Tab title="autojump">
+    Run the following command, replacing the path with the location of your autojump database:
+
+    ```bash
+    zoxide import --from=autojump "/path/to/autojump/autojump.txt"
+    ```
+
+    The default database location depends on your operating system:
+
+    | OS      | Default path |
+    | ------- | ------------ |
+    | Linux   | `$XDG_DATA_HOME/autojump/autojump.txt` or `~/.local/share/autojump/autojump.txt` |
+    | macOS   | `~/Library/autojump/autojump.txt` |
+    | Windows | `%APPDATA%\autojump\autojump.txt` |
+
+    **Example (Linux):**
+
+    ```bash
+    zoxide import --from=autojump ~/.local/share/autojump/autojump.txt
+    ```
+
+    <Info>
+      Autojump uses a different scoring algorithm. zoxide normalizes imported
+      ranks through a sigmoid function so scores blend naturally with entries
+      you accumulate going forward.
+    </Info>
+  </Tab>
+
+  <Tab title="fasd">
+    fasd uses the same database format as z. Run:
+
+    ```bash
+    zoxide import --from=z "/path/to/fasd/db"
+    ```
+
+    The default database location is `$_FASD_DATA` if set, otherwise `~/.fasd`.
+
+    **Example:**
+
+    ```bash
+    zoxide import --from=z ~/.fasd
+    ```
+  </Tab>
+
+  <Tab title="z">
+    ```bash
+    zoxide import --from=z "/path/to/z/db"
+    ```
+
+    The default database location depends on your shell:
+
+    | Variant      | Default path |
+    | ------------ | ------------ |
+    | z (bash/zsh) | `$_Z_DATA` or `~/.z` |
+    | z (fish)     | `$Z_DATA` or `$XDG_DATA_HOME/z/data` or `~/.local/share/z/data` |
+
+    **Example (bash/zsh):**
+
+    ```bash
+    zoxide import --from=z ~/.z
+    ```
+  </Tab>
+
+  <Tab title="z.lua">
+    z.lua also uses the z database format:
+
+    ```bash
+    zoxide import --from=z "/path/to/zlua/db"
+    ```
+
+    The default database location depends on your shell:
+
+    | Variant          | Default path |
+    | ---------------- | ------------ |
+    | z.lua (bash/zsh) | `$_ZL_DATA` or `~/.zlua` |
+    | z.lua (fish)     | `$XDG_DATA_HOME/zlua/zlua.txt` or `~/.local/share/zlua/zlua.txt` or `$_ZL_DATA` |
+
+    **Example (bash/zsh):**
+
+    ```bash
+    zoxide import --from=z ~/.zlua
+    ```
+  </Tab>
+
+  <Tab title="zsh-z">
+    zsh-z also uses the z database format:
+
+    ```bash
+    zoxide import --from=z "/path/to/zsh-z/db"
+    ```
+
+    The default database location is `$ZSHZ_DATA`, `$_Z_DATA`, or `~/.z`.
+
+    **Example:**
+
+    ```bash
+    zoxide import --from=z ~/.z
+    ```
+  </Tab>
+
+  <Tab title="ZLocation">
+    ZLocation is a PowerShell module with its own data format. It must be
+    converted to the z format before importing. Run the following in PowerShell:
+
+    ```powershell
+    $db = New-TemporaryFile
+    (Get-ZLocation).GetEnumerator() | ForEach-Object { Write-Output ($_.Name+'|'+$_.Value+'|0') } | Out-File $db
+    zoxide import --from=z $db
+    ```
+
+    This exports your ZLocation history to a temporary file in the `path|rank|epoch`
+    format that zoxide's z importer expects, then imports it.
+  </Tab>
+</Tabs>
+
+## The `--merge` flag
+
+By default, `zoxide import` refuses to run if your zoxide database already contains entries. This prevents accidental data loss. If you want to merge imported data with your existing history, add `--merge`:
+
+```bash
+zoxide import --from=autojump --merge ~/.local/share/autojump/autojump.txt
+```
+
+When merging, entries for the same directory have their ranks added together, and the most recent `last_accessed` timestamp is kept.
+
+## Starting fresh
+
+You don't need to import anything. zoxide starts building its database the moment you begin navigating directories. Within a few days of normal use, its suggestions will be accurate and personalized to your workflow.

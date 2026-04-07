@@ -1,0 +1,60 @@
+---
+title: "Third-party integrations"
+description: "Plugins and native support for editors, file managers, launchers, terminal multiplexers, and more."
+---
+
+zoxide has a rich ecosystem of third-party integrations. Many applications have added native support — meaning no extra plugin is required — while others are supported through community-maintained plugins.
+
+<AccordionGroup>
+  <Accordion title="Text editors & IDEs">
+    | Application | Description | Plugin |
+    | ----------- | ----------- | ------ |
+    | [Emacs](https://www.gnu.org/software/emacs/) | Text editor | [zoxide.el](https://gitlab.com/Vonfry/zoxide.el) |
+    | [Vim](https://github.com/vim/vim) / [Neovim](https://github.com/neovim/neovim) | Text editor | [zoxide.vim](https://github.com/nanotee/zoxide.vim) |
+    | [telescope.nvim](https://github.com/nvim-telescope/telescope.nvim) | Fuzzy finder for Neovim | [telescope-zoxide](https://github.com/jvgrootveld/telescope-zoxide) |
+  </Accordion>
+
+  <Accordion title="File managers">
+    | Application | Description | Plugin |
+    | ----------- | ----------- | ------ |
+    | [felix](https://github.com/kyoheiu/felix) | File manager | Natively supported |
+    | [joshuto](https://github.com/kamiyaa/joshuto) | File manager | Natively supported |
+    | [lf](https://github.com/gokcehan/lf) | File manager | See the [wiki](https://github.com/gokcehan/lf/wiki/Integrations#zoxide) |
+    | [nnn](https://github.com/jarun/nnn) | File manager | [nnn-autojump](https://github.com/jarun/nnn/blob/master/plugins/autojump) |
+    | [ranger](https://github.com/ranger/ranger) | File manager | [ranger-zoxide](https://github.com/jchook/ranger-zoxide) |
+    | [rfm](https://github.com/dsxmachina/rfm) | File manager | Natively supported |
+    | [xplr](https://github.com/sayanarijit/xplr) | File manager | [zoxide.xplr](https://github.com/sayanarijit/zoxide.xplr) |
+    | [yazi](https://github.com/sxyazi/yazi) | File manager | Natively supported |
+
+    <Note>
+      "Natively supported" means the application ships built-in zoxide
+      integration — no extra plugin installation is needed.
+    </Note>
+  </Accordion>
+
+  <Accordion title="macOS launchers">
+    | Application | Description | Plugin |
+    | ----------- | ----------- | ------ |
+    | [Alfred](https://www.alfredapp.com/) | macOS launcher | [alfred-zoxide](https://github.com/yihou/alfred-zoxide) |
+    | [Raycast](https://www.raycast.com/) | macOS launcher | [raycast-zoxide](https://www.raycast.com/mrpunkin/raycast-zoxide) |
+  </Accordion>
+
+  <Accordion title="tmux & session managers">
+    | Application | Description | Plugin |
+    | ----------- | ----------- | ------ |
+    | [sesh](https://github.com/joshmedeski/sesh) | tmux session manager | Natively supported |
+    | [tmux-session-wizard](https://github.com/27medkamal/tmux-session-wizard) | tmux session manager | Natively supported |
+    | [tmux-sessionx](https://github.com/omerxx/tmux-sessionx) | tmux session manager | Natively supported |
+    | [zesh](https://github.com/roberte777/zesh) | zellij session manager | Natively supported |
+  </Accordion>
+
+  <Accordion title="Other">
+    | Application | Description | Plugin |
+    | ----------- | ----------- | ------ |
+    | [aerc](https://github.com/rjarry/aerc) | Email client | Natively supported |
+    | [clink](https://github.com/mridgers/clink) | Improved cmd.exe for Windows | [clink-zoxide](https://github.com/shunsambongi/clink-zoxide) |
+    | [xxh](https://github.com/xxh/xxh) | Transports shell configuration over SSH | [xxh-plugin-prerun-zoxide](https://github.com/xxh/xxh-plugin-prerun-zoxide) |
+    | [zabb](https://github.com/Mellbourn/zabb) | Finds the shortest possible query for a path | Natively supported |
+    | [zsh-autocomplete](https://github.com/marlonrichert/zsh-autocomplete) | Realtime completions for zsh | Natively supported |
+  </Accordion>
+</AccordionGroup>

@@ -1,0 +1,98 @@
+---
+title: "How the algorithm works"
+description: "A deep dive into zoxide's frecency scoring, aging, and keyword-matching logic."
+---
+
+zoxide uses a **frecency** algorithm — a portmanteau of *frequency* and *recency* — to decide which directory to return for a given query. The more often you visit a directory, and the more recently you visited it, the higher it ranks.
+
+## The data model
+
+Each directory in the zoxide database is stored as a `Dir` record with three fields (see `src/db/dir.rs`):
+
+| Field | Type | Description |
+| ----- | ---- | ----------- |
+| `path` | string | Absolute path of the directory |
+| `rank` | `f64` | Accumulated visit score |
+| `last_accessed` | `u64` | Unix timestamp of the most recent visit |
+
+The `rank` is the raw accumulator. Every time you `cd` into a directory, its `rank` is incremented (by default by `1.0`). The **score** used for sorting is derived from `rank` plus a recency multiplier.
+
+## Scoring (frecency)
+
+When zoxide sorts results, it calls `Dir::score(now)` on every entry. The multiplier is determined by how long ago the directory was last accessed:
+
+| Time since last visit | Multiplier |
+| --------------------- | ---------- |
+| Less than 1 hour | `rank × 4.0` |
+| Less than 1 day | `rank × 2.0` |
+| Less than 1 week | `rank × 0.5` |
+| 1 week or older | `rank × 0.25` |
+
+A directory visited a few minutes ago therefore scores **16× higher** relative to a same-rank directory last visited two weeks ago. This ensures recently-used paths surface at the top without requiring you to visit them hundreds of times.
+
+## Aging
+
+To keep the database from growing unbounded, zoxide runs an aging pass whenever the total rank across all entries exceeds `_ZO_MAXAGE` (default `10000`).
+
+The aging algorithm (in `src/db/mod.rs`):
+
+1. Sum the `rank` values of every entry.
+2. If the sum exceeds `_ZO_MAXAGE`, multiply every entry's rank by `0.9 × _ZO_MAXAGE / total`.
+3. Remove any entry whose rank drops below `1.0`.
+
+This proportionally scales the entire database down rather than deleting the oldest entries outright, so your relative visit history is preserved. You can raise `_ZO_MAXAGE` to keep more entries or lower it to trim aggressively:
+
+```bash
+# Keep up to 50 000 total rank points (more entries, slower decay)
+export _ZO_MAXAGE=50000
+```
+
+Additionally, entries for directories that no longer exist on disk are lazily removed when they are encountered during a query and have not been accessed in more than 90 days.
+
+## Matching
+
+When you run `z foo bar`, zoxide searches the database for entries whose path matches all supplied keywords. The matching logic (in `src/db/stream.rs`) follows these rules:
+
+1. **Case-insensitive** — all comparisons are done in lowercase.
+2. **All keywords must match** — a path is only considered if every keyword is a substring of the path.
+3. **Order is preserved** — keywords must appear in the path in left-to-right order (no overlapping).
+4. **Last keyword anchored to final component** — the last keyword must appear in the last path component (i.e. there is no path separator after it). This means `z bar` won't match `/bar/foo` but will match `/foo/bar`.
+
+Some examples from the test suite:
+
+| Keywords | Path | Match? |
+| -------- | ---- | ------ |
+| `fOo bAr` | `/foo/bar` | Yes (case-insensitive) |
+| `ba` | `/foo/bar` | Yes (`ba` is in last component) |
+| `fo` | `/foo/bar` | No (`fo` is not in the last component) |
+| `foo /` | `/foo/bar` | Yes |
+| `foo /` | `/foo` | No |
+| `foo o bar` | `/foo/bar` | No (keywords overlap) |
+
+After all candidates are filtered, zoxide returns the **highest-scoring** match. Use `zi` (interactive mode) or `zoxide query --list` to see all matches when the top result is not what you want.
+
+## Putting it all together
+
+```
+          ┌─────────────┐
+cd /foo   │  rank += 1  │   Database entry: { path, rank, last_accessed }
+──────────►             │
+          └──────┬──────┘
+                 │ aging pass if sum(rank) > _ZO_MAXAGE
+                 ▼
+          ┌─────────────┐
+z foo     │   sort by   │   score = rank × recency_multiplier
+──────────►   score()   │
+          └──────┬──────┘
+                 │ filter by keywords (ordered, case-insensitive)
+                 ▼
+          highest-scoring match → cd
+```
+
+The more you use zoxide, the more accurate its suggestions become — frequent destinations rise naturally to the top while directories you stopped visiting fade away.
+
+<Tip>
+  Run `zoxide query --list --score foo` to inspect the scores of all matching
+  entries for a given keyword. This is the fastest way to understand why zoxide
+  is returning a particular directory.
+</Tip>
